@@ -7,6 +7,15 @@
 
 import UIKit
 
+/// 当前Sence
+let CurrentScene = UIApplication.shared.connectedScenes.filter{$0.activationState == .foregroundActive || $0.activationState == .foregroundInactive}.compactMap{$0 as? UIWindowScene}.first
+/// 屏宽
+let kScreenWidth: CGFloat = UIScreen.main.bounds.size.width
+/// 屏高
+let kScreenHeight: CGFloat = UIScreen.main.bounds.size.height
+/// 状态栏高度
+let kStatusBarHeight: CGFloat = CurrentScene?.statusBarManager?.statusBarFrame.size.height ?? 20.0
+
 /// 查看图片
 struct ImageShow {
     
@@ -93,7 +102,7 @@ class ImagesShowView: UIView, UIScrollViewDelegate {
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel(frame: CGRect(x: 0, y: kStatusBarHeight, width: kScreenWidth, height: 44))
-        label.set(nil, textColor: .white, font: .regular(15), textAlignment: .center)
+        label.set(nil, textColor: .white, font: UIFont.systemFont(ofSize: 15), textAlignment: .center)
         addSubview(label)
         return label
     }()
@@ -172,11 +181,9 @@ fileprivate class ShowImageScrollView: UIScrollView, UIScrollViewDelegate {
     public var imageUrl = "" {
         didSet {
             if let url = URL(string: imageUrl) {
-                Tips.showLoading(to: self)
                 KingfisherManager.shared.retrieveImage(with: url) { result in
                     if let info = try? result.get() {
                         self.image = info.image
-                        Tips.dismiss(for: self)
                     }
                 }
             }
@@ -262,20 +269,20 @@ fileprivate class ShowImageScrollView: UIScrollView, UIScrollViewDelegate {
     // 长按
     @objc private func longPressClick(_ gesture: UILongPressGestureRecognizer) {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet)
-        alertController.addAction(UIAlertAction(title: "Alert.Save to album".localized(), style: .default, handler: { [weak self] (action) in
+        alertController.addAction(UIAlertAction(title: "保存到相册", style: .default, handler: { [weak self] (action) in
             if let image = self?.imageView.image {
                 UIImageWriteToSavedPhotosAlbum(image, self, #selector(self?.image(image:didFinishSavingWithError:contextInfo:)), nil)
             }
         }))
-        alertController.addAction(UIAlertAction(title: "Alert.Cancel".localized(), style: .cancel, handler: nil))
+        alertController.addAction(UIAlertAction(title: "取消", style: .cancel, handler: nil))
         AppCurrentVC?.present(alertController, sourceView: imageView)
     }
 
     @objc private func image(image: UIImage, didFinishSavingWithError: NSError?, contextInfo: AnyObject) {
         if didFinishSavingWithError == nil {
-            Tips.show(localized: "Tips.Saved to album")
+            print("已保存到相册")
         }  else {
-            Tips.show(localized: "Tips.Fail to save")
+            print("保存失败")
         }
     }
     
