@@ -2,7 +2,7 @@
 //  ImageShow.swift
 //  Sunshine
 //
-//  Created by Sunshine Days on 2023/12/28.
+//  Created by Sunshine Days on 2021/12/28.
 //
 
 import UIKit
